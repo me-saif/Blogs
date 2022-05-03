@@ -1,49 +1,108 @@
 ﻿@model IEnumerable<Blogs.Models.Category>
 @{
     ViewData["Title"] = "Index";
+    Layout = null;
 }
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 
 <div class="container">
-    <table id="categories" class="table table-bordered" style="margin-top:10px;">
-        <thead class="bg-danger text-center text-white">
-            <tr>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Delete Status</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody></tbody>
-    </table>
+    <div class="row">
+        <div class="col-md-6">
+            <table id="categories" class="table table-bordered" style="margin-top:10px;">
+                <thead class="bg-danger text-center text-white">
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Delete Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="tbody"></tbody>
+            </table>
+        </div>
+    </div>
 </div>
+
+@*<script>
+        $(document).ready(function () {
+            getAllEmployees();
+            function getAllEmployees() {
+                $.ajax({
+                    url: 'GetCategories',
+                    dataType: "json",
+                    method: 'GET',
+                    success: function (data) {
+                        var categoryTable = $('#categories tbody');
+                        categoryTable.empty();
+
+                        $(data).each(function (index, cat) {
+                            categoryTable.append('<tr><td>' + cat.Id + '</td><td>'
+                                + cat.Name + '</td><td>' + cat.Delete_Status + '</td></tr>');
+                        });
+                        console.log(data);
+                    },
+                    error: function (err) {
+                        console.log(err);
+                    }
+                });
+            }
+        });
+    </script>*@
 
 <script>
     $(document).ready(function () {
-        getAllEmployees();
-        function getAllEmployees() {
-            $.ajax({
-                url: 'GetCategories',
-                dataType: "json",
-                method: 'GET',
-                success: function (data) {
-                    var categoryTable = $('#categories tbody');
-                    categoryTable.empty();
-
-                    $(data).each(function (index, cat) {
-                        categoryTable.append('<tr><td>' + cat.Id + '</td><td>'
-                            + cat.Name + '</td><td>' + cat.Delete_Status + '</td></tr>');
-                    });
-                    console.log(data);
-                },
-                error: function (err) {
-                    console.log(err);
-                }
-            });
-        }
+        loadData();
     });
+    function loadData() {
+        $.ajax({
+            url: "/Categories/GetCategories",
+            type: "GET",
+            contentType: "application/json;charset=utf-8",
+            dataType: "JSON",
+            success: function (data) {
+                //var categoryTable = $('#categories tbody');
+                //categoryTable.empty();
+
+                //$(data).each(function (index, cat) {
+                //    categoryTable.append('<tr><td>' + cat.Id + '</td><td>'
+                //        + cat.Name + '</td><td>' + cat.Delete_Status + '</td></tr>');
+                //});
+                var html = "";
+                $.each(function (key, item) {
+                    html += '<tr><td>' + item.Id + '</td><td>' + item.Name + '</td><td>' + item.Delete_Status + '</td></tr>'
+                });
+                $('#tbody').append(html);
+                console.log(data);
+            },
+            error: function (errormessage) {
+                alert(errormessage.responseText);
+            }
+        });
+    }
 </script>
+
+@*<script>
+        $(document).ready(function () {
+            GetData();
+            function GetData() {
+                var html = "";
+                $ajax({
+                    url: "/Categories/GetCategories",
+                    type: "GET",
+                    contentType: "application/json;charset=utf-8",
+                    dataType: "JSON",
+                    success: function (response) {
+                        $.each(response, function (key, item) {
+                            html += '<tr><td>' + item.Id + '</td><td>' + item.Name + '</td><td>' + item.Delete_Status + '</td></tr>'
+                        });
+                        $('.tbody').append(html);
+                    }
+                });
+            }
+        });
+    </script>*@

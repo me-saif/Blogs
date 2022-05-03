@@ -16,4 +16,8 @@
     <PackageReference Include="System.Composition.AttributedModel" Version="5.0.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\sliders\" />
+  </ItemGroup>
+
 </Project>

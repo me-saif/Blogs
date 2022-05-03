@@ -59,7 +59,7 @@ namespace Blogs
             {
                 endpoints.MapControllerRoute(
                     name: "default",
-                    pattern: "{controller=Account}/{action=Login}/{id?}");
+                    pattern: "{controller=Slider}/{action=Create}/{id?}");
             });
         }
     }

@@ -24,6 +24,10 @@ namespace Blogs.Models
 
         public DbSet<Category> Categories { get; set; }
 
+        public DbSet<Blog> Blogs { get; set; }
+
+        public DbSet<Slider> Sliders { get; set; }
+
         public override int SaveChanges(bool acceptAllChangesOnSuccess)
         {
             var now = DateTime.Now.Date;
