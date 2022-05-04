@@ -26,7 +26,14 @@ namespace Blogs.Controllers
 
         public IActionResult Index()
         {
-            return View(_context.Sliders.ToList());
+            var result = _context.Sliders.ToList().OrderByDescending(x => x.Id).Where(x => x.Status == "published");
+            return View(result);
+        }
+
+        public IActionResult List()
+        {
+            var result = _context.Sliders.ToList().OrderByDescending(x => x.Id).Where(x => x.Status == "published");
+            return View(result);
         }
 
         public IActionResult Create()
@@ -74,6 +81,87 @@ namespace Blogs.Controllers
             }
 
             return View();
+        }
+
+        [HttpGet]
+        public ViewResult Edit(int id)
+        {
+            Slider slider = _context.Sliders.Find(id);
+            EditSliderVM sliderEditViewModel = new EditSliderVM
+            {
+                Id = slider.Id,
+                Status = slider.Status,
+                ShortDescription = slider.ShortDescription,
+                Link = slider.Link,
+                ExistingThumbnail = slider.ThumbnailUrl
+            };
+            return View(sliderEditViewModel);
+        }
+
+        [HttpPost]
+        public IActionResult Edit(EditSliderVM model)
+        {
+            // Check if the provided data is valid, if not rerender the edit view
+            // so the user can correct and resubmit the edit form
+            if (ModelState.IsValid)
+            {
+                // Retrieve the employee being edited from the database
+                Slider slider = _context.Sliders.Find(model.Id);
+                // Update the employee object with the data in the model object
+                slider.ShortDescription = model.ShortDescription;
+                slider.Status = model.Status;
+                slider.Link = model.Link;
+
+                // If the user wants to change the photo, a new photo will be
+                // uploaded and the Photo property on the model object receives
+                // the uploaded photo. If the Photo property is null, user did
+                // not upload a new photo and keeps his existing photo
+                if (model.Thumbnail != null)
+                {
+                    // If a new photo is uploaded, the existing photo must be
+                    // deleted. So check if there is an existing photo and delete
+                    if (model.ExistingThumbnail != null)
+                    {
+                        string filePath = Path.Combine(_hostingEnvironment.WebRootPath,
+                            "sliders", model.ExistingThumbnail);
+                        System.IO.File.Delete(filePath);
+                    }
+                    // Save the new photo in wwwroot/images folder and update
+                    // PhotoPath property of the employee object which will be
+                    // eventually saved in the database
+                    slider.ThumbnailUrl = ProcessUploadedFile(model);
+                }
+
+                // Call update method on the repository service passing it the
+                // employee object to update the data in the database table
+
+                _context.Sliders.Attach(slider).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
+                _context.SaveChanges();
+
+                //Slider updatedSlider = _context.Sliders.Update(slider);
+
+                return RedirectToAction("index");
+            }
+
+            return View(model);
+        }
+
+        private string ProcessUploadedFile(CreateSliderVM model)
+        {
+            string uniqueFileName = null;
+
+            if (model.Thumbnail != null)
+            {
+                string uploadsFolder = Path.Combine(_hostingEnvironment.WebRootPath, "sliders");
+                uniqueFileName = Guid.NewGuid().ToString() + "_" + model.Thumbnail.FileName;
+                string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+                using (var fileStream = new FileStream(filePath, FileMode.Create))
+                {
+                    model.Thumbnail.CopyTo(fileStream);
+                }
+            }
+
+            return uniqueFileName;
         }
     }
 }
